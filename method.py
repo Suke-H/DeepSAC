@@ -45,31 +45,37 @@ def Disassemble(XYZ):
     return X, Y, Z
 
 
-def MakePoints(fn, AABB, sampling_size, grid_step=50, down_rate=0.5, epsilon=0.05):
+def MakePoints(fn, AABB, sampling_size, grid_step=50, epsilon=0.05):
     # import time
     # start = time.time()
     xmin, xmax, ymin, ymax, zmin, zmax = AABB
 
-    # 点群X, Y, Z, pointsを作成
-    x = np.linspace(xmin, xmax, grid_step)
-    y = np.linspace(ymin, ymax, grid_step)
-    z = np.linspace(zmin, zmax, grid_step)
+    while True:
 
-    X, Y, Z = np.meshgrid(x, y, z)
+        # 点群X, Y, Z, pointsを作成
+        x = np.linspace(xmin, xmax, grid_step)
+        y = np.linspace(ymin, ymax, grid_step)
+        z = np.linspace(zmin, zmax, grid_step)
 
-    # 格子点X, Y, Zをすべてfnにぶち込んでみる
-    W = np.array([[fn(X[i][j], Y[i][j], Z[i][j]) for j in range(grid_step)] for i in range(grid_step)])
-    # 変更前
-    # W = fn(X, Y, Z)
+        X, Y, Z = np.meshgrid(x, y, z)
 
-    # Ｗが0に近いインデックスを取り出す
-    index = np.where(np.abs(W) <= epsilon)
-    index = [(index[0][i], index[1][i], index[2][i]) for i in range(len(index[0]))]
-    # print(index)
+        # 格子点X, Y, Zをすべてfnにぶち込んでみる
+        W = np.array([[fn(X[i][j], Y[i][j], Z[i][j]) for j in range(grid_step)] for i in range(grid_step)])
+        # 変更前
+        # W = fn(X, Y, Z)
 
-    # ランダムにダウンサンプリング
-    #index = random.sample(index, int(len(index) * down_rate // 1))
+        # Ｗが0に近いインデックスを取り出す
+        index = np.where(np.abs(W) <= epsilon)
+        index = [(index[0][i], index[1][i], index[2][i]) for i in range(len(index[0]))]
+        # print(index)
 
+        # indexがsampling_size分なかったらgrid_stepを増やしてやり直し
+        if len(index) >= sampling_size:
+            break
+
+        grid_step += 10
+
+    # サンプリング
     index = random.sample(index, sampling_size)
 
     # 格子点から境界面(fn(x,y,z)=0)に近い要素のインデックスを取り出す
