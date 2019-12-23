@@ -1,4 +1,5 @@
 import keras
+from sklearn.preprocessing import Imputer
 
 import figure2 as F
 from view_method import *
@@ -84,6 +85,10 @@ def MakeIndices(plane, points):
     m = np.mean(indices)
     indices = (indices - m) / s
 
+    # nanやinfが出たらやり直し
+    #if np.any(np.isnan(indices)) or np.any(np.isinf(indices)):
+        #return None
+
     # 0, 1になったらOK
     #print(np.mean(indices), np.std(indices))
 
@@ -138,6 +143,12 @@ def MakeOneData(M, N):
     planes.insert(y, True_plane)
     # 入力データ作成
     x = np.array([MakeIndices(planes[i], points) for i in range(M)])
+
+    # nanを平均値で補完する
+    #imr = Imputer(missing_values=np.nan, strategy='mean', axis=0)
+    #x = imr.fit_transform(x)
+
+    print(x.shape)
 
     return x, y
 

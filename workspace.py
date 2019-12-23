@@ -12,7 +12,9 @@ from MakeDataset import *
 # plt.show()
 
 # N, m, n
-x_train, x_test, y_train, y_test = MakeDataset(5, 5, 100)
+m, n = 5, 10
+N = 100
+x_train, x_test, y_train, y_test = MakeDataset(N, m, n)
 print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
 print(x_test)
 print(y_test)
